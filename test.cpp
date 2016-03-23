@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <sstream>
+#include <vector>
 void Test_IndexedMapInsertionAndOperator()
 {
 	IndexedMap <std::string, char> my_map;
@@ -84,105 +85,34 @@ void Test_IndexedMapRemoveRand()
 }
 
 
-/*
-
-void Test_IndexMapIterator()
+void Test_IndexCopyContainer()
 {
-	cout << " Testing Itertor\n";
-	IndexedMap my_map;
-	//my_map.insert(10);
-	//my_map.insert(7);
-	//my_map.insert(12);
-	for (std::size_t i = 0; i < 100; i++)
-	{
-		my_map.insert(rand() % 10000, "MSM");
-	}
-	for (auto it : my_map)
-	{
-		cout << it.first << ", " << it.second << std::endl;
-	}
-	//my_map.printAll();
+	typedef IndexedMap<std::string, char> Map_t;
+	typedef std::vector<Map_t::Value_t> Vec_t;
+	Vec_t vec;
+	vec.push_back(Map_t::Value_t( "A", 'A'));
+	vec.push_back(Map_t::Value_t("B", 'B'));
+	vec.push_back(Map_t::Value_t("C", 'C'));
 
+	Map_t my_map(vec.begin(), vec.end());
+	assert(my_map.size() == 3);
+
+	assert(my_map.key(0) == "A");
+	assert(my_map.data(0) == 'A');
+	assert(my_map.key(1) == "B");
+	assert(my_map.data(1) == 'B');
+	assert(my_map.key(2) == "C");
+	assert(my_map.data(2) == 'C');
+
+	
 }
 
-void Test_IndexMapSubscript()
-{
-	cout << " Testing Itertor\n";
-	IndexedMap my_map;
-	//my_map.insert(10);
-	//my_map.insert(7);
-	//my_map.insert(12);
-	for (std::size_t i = 0; i < 100; i++)
-	{
-		std::stringstream ss;
-		int v = rand() % 10000;
-		ss << "[MSM " << v << " SS]";
-		my_map.insert(v, ss.str());
-	}
-	for (auto it : my_map)
-	{
-		cout << it.first << ", " << my_map[it.first] << std::endl;
-	}
-	//my_map.printAll();
-
-}
-
-void Test_IndexSetIterator()
-{
-	cout << " Testing Set Itertor\n";
-	IndexedSet my_set;
-	//my_map.insert(10);
-	//my_map.insert(7);
-	//my_map.insert(12);
-	for (std::size_t i = 0; i < 100; i++)
-	{
-		my_set.insert(rand() % 10000);
-	}
-
-	for (auto it : my_set)
-	{
-		cout << it << std::endl;
-	}
-	//my_map.printAll();
-
-}
-
-
-
-void Test_IndexSet()
-{
-	IndexedSet my_set;
-	//my_map.insert(10);
-	//my_map.insert(7);
-	//my_map.insert(12);
-	for (std::size_t i = 0; i < 10; i++)
-	{
-		my_set.insert(rand() % 10000);
-	}
-	for (std::size_t i = 0; i != my_set.size(); ++i)
-	{
-		cout << my_set[i] << std::endl;
-	}
-	//my_map.printAll();
-
-}
-#include <map>
-*/
 void main()
 {
 	Test_IndexedMapInsertionAndOperator();
 	Test_IndexedMapIndex();
 	Test_IndexedMapRemove();
 	Test_IndexedMapRemoveRand();
-	/*Test_IndexMap();
-	cout << "Test Set\n";
-	Test_IndexSet();
-	Test_IndexMapIterator();
-	Test_IndexSetIterator();
-	Test_IndexMapSubscript();
-	cout << "Finisned\n";
-	std::map<int, int> m;
-	m[0] = 1;
-	m.begin()->first;
-	while (true);*/
+	Test_IndexCopyContainer();
+
 }

@@ -6,12 +6,27 @@
 template<typename Key_t, typename Data_t>
 class IndexedMap
 {
-private:
+
+public:
+	typedef std::pair<Key_t, Data_t> Value_t;
+protected:
+
 	typedef char Balance_t;
 public:
 
-	IndexedMap() : _root(NULL)
+	IndexedMap() 
+	: _root(NULL)
 	{
+	}
+
+	template<typename InputIterator>
+	IndexedMap(InputIterator first, InputIterator last)
+	 :_root(NULL)
+	{
+		for (InputIterator it = first; it != last; ++it)
+		{
+			insert(it->first, it->second);
+		}
 	}
 
 	void insert(const Key_t& key, const Data_t& data)
@@ -120,7 +135,7 @@ public:
 		return Iterator();
 	}
 
-private:
+protected:
 
 	class Node;
 
@@ -134,7 +149,7 @@ public:
 
 		}
 
-	private:
+	protected:
 		Iterator(Node* n)
 			:_n(n)
 		{
@@ -171,12 +186,12 @@ public:
 			return *this;
 		}
 
-		const std::pair<Key_t, Data_t>& operator *() const
+		const Value_t& operator *() const
 		{
 			return _n->value();
 		}
 
-		const std::pair<Key_t, Data_t>* operator ->()  const
+		const Value_t* operator ->()  const
 		{
 			return &_n->value();
 		}
@@ -191,13 +206,13 @@ public:
 			return  _n != other._n;
 		}
 
-	private:
+	protected:
 
 		Node* _n;
 		friend Iterator IndexedMap::begin();
 	};
 
-private:
+protected:
 
 	class Node
 	{
@@ -298,17 +313,17 @@ private:
 			_parent = NULL;
 		}
 
-		std::pair<Key_t, Data_t>& value()
+		Value_t& value()
 		{
 			return _value;
 		}
 
-		const std::pair<Key_t, Data_t>& value() const
+		const Value_t& value() const
 		{
 			return _value;
 		}
 
-	private:
+	protected:
 
 		void updateCount()
 		{
@@ -325,9 +340,9 @@ private:
 			}
 		}
 
-	private:
+	protected:
 
-		std::pair<Key_t, Data_t> _value;
+		Value_t _value;
 		Balance_t _balance;
 		std::size_t _count;
 		Node* _left;
