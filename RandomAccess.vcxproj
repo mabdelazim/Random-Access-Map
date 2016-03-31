@@ -14,6 +14,7 @@
     <ProjectGuid>{68AF0043-0F66-4D31-9447-45C8B7C333ED}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>IndexedMap</RootNamespace>
+    <ProjectName>RandomAccess</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -78,7 +79,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="IndexedMap.h" />
+    <ClInclude Include="RandomAccessMap.h" />
+    <ClInclude Include="RecentList.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp" />

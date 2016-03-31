@@ -1,11 +1,11 @@
-#include "IndexedMap.h"
+#include "RandomAccessMap.h"
 #include <cassert>
 #include <cstdlib>
 #include <sstream>
 #include <vector>
-void Test_IndexedMapInsertionAndOperator()
+void Test_RandomAccessMapInsertionAndOperator()
 {
-	IndexedMap <std::string, char> my_map;
+	RandomAccessMap <std::string, char> my_map;
 	my_map.insert("A", 'A');
 	my_map.insert("C", 'C');
 	my_map.insert("B", 'B');
@@ -19,9 +19,9 @@ void Test_IndexedMapInsertionAndOperator()
 
 }
 
-void Test_IndexedMapIndex()
+void Test_RandomAccessMapIndex()
 {
-	IndexedMap <std::string, char> my_map;
+	RandomAccessMap <std::string, char> my_map;
 	my_map.insert("A", 'A');
 	my_map.insert("C", 'C');
 	my_map.insert("B", 'B');
@@ -36,9 +36,9 @@ void Test_IndexedMapIndex()
 	assert(my_map.data(2) == 'C');
 }
 
-void Test_IndexedMapRemove()
+void Test_RandomAccessMapRemove()
 {
-	IndexedMap <std::string, char> my_map;
+	RandomAccessMap <std::string, char> my_map;
 	my_map.insert("A", 'A');
 	my_map.insert("C", 'C');
 	my_map.insert("B", 'B');
@@ -52,9 +52,9 @@ void Test_IndexedMapRemove()
 	assert(my_map.data(1) == 'C');
 }
 
-void Test_IndexedMapRemoveRand()
+void Test_RandomAccessMapRemoveRand()
 {
-	IndexedMap <std::string, std::size_t> my_map;
+	RandomAccessMap <std::string, std::size_t> my_map;
 	
 	my_map.insert("A", 'A');
 
@@ -87,7 +87,7 @@ void Test_IndexedMapRemoveRand()
 
 void Test_IndexCopyContainer()
 {
-	typedef IndexedMap<std::string, char> Map_t;
+	typedef RandomAccessMap<std::string, char> Map_t;
 	typedef std::vector<Map_t::Value_t> Vec_t;
 	Vec_t vec;
 	vec.push_back(Map_t::Value_t( "A", 'A'));
@@ -107,12 +107,45 @@ void Test_IndexCopyContainer()
 	
 }
 
+#include <unordered_map>
+void Test_IteratorValidity()
+{
+	typedef RandomAccessMap<int, int> Map_t;
+	Map_t my_map;
+	std::unordered_map<int, Map_t::Iterator> iterators_list;
+	for (std::size_t i = 0; i < 1000; i++)
+	{
+		int key = rand();
+		if (!my_map.find(key))
+		{
+			Map_t::Iterator it = my_map.insert(key, key | 1);
+			iterators_list[key] = it;
+		}
+	}
+
+	for (std::size_t i = 0; i < 100; i++)
+	{
+		int index = rand() % my_map.size();
+		int key = my_map.key(index);
+		my_map.remove(key);
+		iterators_list.erase(key);
+	}
+
+	for (std::unordered_map<int, Map_t::Iterator>::iterator it = iterators_list.begin(); it != iterators_list.end(); ++it)
+	{
+		assert(it->first == it->second->first);
+		assert((it->first | 1) == it->second->second);
+
+	}
+
+}
+
 void main()
 {
-	Test_IndexedMapInsertionAndOperator();
-	Test_IndexedMapIndex();
-	Test_IndexedMapRemove();
-	Test_IndexedMapRemoveRand();
+	Test_RandomAccessMapInsertionAndOperator();
+	Test_RandomAccessMapIndex();
+	Test_RandomAccessMapRemove();
+	Test_RandomAccessMapRemoveRand();
 	Test_IndexCopyContainer();
-
+	Test_IteratorValidity();
 }

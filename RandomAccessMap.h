@@ -1,26 +1,32 @@
-#ifndef __INDEX_MAP_HEADER__
-#define __INDEX_MAP_HEADER__
-#include <string>
-
+#ifndef __RANDOM_ACCESS_HEADER__
+#define __RANDOM_ACCESS_HEADER__
+#include <algorithm>
 
 template<typename Key_t, typename Data_t>
-class IndexedMap
+
+#define LEFT 0
+#define RIGHT 1
+
+class RandomAccessMap
 {
 
 public:
 	typedef std::pair<Key_t, Data_t> Value_t;
+	class Iterator;
 protected:
 
 	typedef char Balance_t;
+
+
 public:
 
-	IndexedMap() 
+	RandomAccessMap() 
 	: _root(NULL)
 	{
 	}
 
 	template<typename InputIterator>
-	IndexedMap(InputIterator first, InputIterator last)
+	RandomAccessMap(InputIterator first, InputIterator last)
 	 :_root(NULL)
 	{
 		for (InputIterator it = first; it != last; ++it)
@@ -29,11 +35,12 @@ public:
 		}
 	}
 
-	void insert(const Key_t& key, const Data_t& data)
+	Iterator insert(const Key_t& key, const Data_t& data)
 	{
 		bool isChanged = false;
 		_root = insert(_root, key, data, isChanged);
 		_root->setRoot();
+		return find(_root, key);
 	}
 
 	void remove(const Key_t& key)
@@ -109,12 +116,11 @@ public:
 		}
 	}
 
-	~IndexedMap()
+	~RandomAccessMap()
 	{
 		freeNode(_root);
 	}
 
-	class Iterator;
 
 	Iterator begin()
 	{
@@ -159,7 +165,7 @@ public:
 	public:
 		Iterator& operator ++()
 		{
-			if (_n->right())
+			if (_n->child(RIGHT))
 			{
 				_n = _n->right();
 				while (_n->left())
@@ -209,7 +215,8 @@ public:
 	protected:
 
 		Node* _n;
-		friend Iterator IndexedMap::begin();
+		friend Iterator RandomAccessMap::begin();
+		friend Iterator RandomAccessMap::insert(const Key_t& key, const Data_t& data);
 	};
 
 protected:
@@ -217,39 +224,124 @@ protected:
 	class Node
 	{
 	public:
+		
 
 		Node(const Key_t key, const Data_t& data)
-			:_value(key, data), _balance(0), _count(1), _left(NULL), _right(NULL), _parent(NULL)
+			:_value(key, data), _balance(0), _count(1), _parent(NULL)
 		{
-		}
-	/*	~Node()
-		{
-			Node* p = parent();
-			while (p)
-			{
-				--p->_count;
-				p = p->parent;
-			}
-		}
-		*/
-		void setLeft(Node* left)
-		{
-			_left = left;
-			if (_left)
-			{
-				_left->_parent = this;
-			}
-			updateCount();
+			_childs[0] = NULL;
+			_childs[1] = NULL;
 		}
 
-		void setRight(Node* right)
+		void swap(Node& other)
 		{
-			_right = right;
-			if (_right)
+			std::swap(_value, other._value);
+			std::swap(_balance, other._balance);
+			std::swap(_count, other._count);
+			if ((this == other._parent) || (&other == this->_parent))
 			{
-				_right->_parent = this;
+				Node* parentNode = this == other._parent ? this : &other;
+				Node* childNode = this == other._parent ? &other : this;
+				int dir = childNode->dir();
+
+				int otherDir = dir == LEFT ? RIGHT : LEFT;
+
+				if (parentNode->_parent)
+				{
+					parentNode->_parent->_childs[parentNode->dir()] = childNode;
+				}
+				childNode->_parent = parentNode->_parent;
+
+
+				parentNode->_childs[dir] = childNode->_childs[dir];
+				if (childNode->_childs[dir])
+				{
+					childNode->_childs[dir]->_parent = parentNode;
+				}
+
+
+				childNode->_childs[dir] = parentNode;
+				parentNode->_parent = childNode;
+
+
+				if (childNode->_childs[otherDir])
+				{
+					childNode->_childs[otherDir]->_parent = parentNode;
+				}
+				if (parentNode->_childs[otherDir])
+				{
+					parentNode->_childs[otherDir]->_parent = childNode;
+				}
+
+
+				std::swap(parentNode->_childs[otherDir], childNode->_childs[otherDir]);
+				
 			}
+			else
+			{
+
+				if (other._childs[LEFT])
+				{
+					other._childs[LEFT]-> _parent = this;
+				}
+				if (other._childs[RIGHT])
+				{
+					other._childs[RIGHT]->_parent = this;
+				}
+				if (this->_childs[LEFT])
+				{
+					this->_childs[LEFT]->_parent = &other;
+				}
+				if (this->_childs[RIGHT])
+				{
+					this->_childs[RIGHT]->_parent = &other;
+				}
+				std::swap(this->_childs[LEFT], other._childs[LEFT]);
+				std::swap(this->_childs[RIGHT], other._childs[RIGHT]);
+				
+				if (this->_parent)
+				{	
+					this->_parent->_childs[this->dir()] = &other;
+				}
+				if (other._parent)
+				{
+					other._parent->_childs[other.dir()] = this;
+				}
+			
+				std::swap(this->_parent, other._parent);
+		 }
+		}
+
+		void setLeft(Node* n)
+		{
+			setChild(n, LEFT);
+		}
+
+		void setRight(Node* n)
+		{
+			setChild(n, RIGHT);
+		}
+
+		Node* left()
+		{
+			return _childs[LEFT];
+		}
+
+		Node* right()
+		{
+			return _childs[RIGHT];
+		}
+
+		void setChild(Node* n, int dir)
+		{
+			_childs[dir] = n;
+			if (n)
+			{
+				n->_parent = this;
+			}
+
 			updateCount();
+
 		}
 
 		void setData(const Data_t& data)
@@ -257,21 +349,11 @@ protected:
 			_value.second = data;
 		}
 
-		void setKey(const Key_t& key)
+		Node* child(int dir) const
 		{
-			_value.first = key;
+			return _child[dir];
 		}
 
-
-		Node* left() const
-		{
-			return _left;
-		}
-
-		Node* right() const
-		{
-			return _right;
-		}
 		Node* parent() const
 		{
 			return _parent;
@@ -328,25 +410,38 @@ protected:
 		void updateCount()
 		{
 			_count = 1;
-			if (_left)
+			if (_childs[LEFT])
 			{
-				_count += _left->_count;
+				_count += _childs[LEFT]->_count;
 
 			}
-			if (_right)
+			if (_childs[RIGHT])
 			{
-				_count += _right->_count;
+				_count += _childs[RIGHT]->_count;
 
 			}
 		}
+
+	protected:
+		int dir() const
+		{
+			if (_parent)
+			{
+				return  _parent->_childs[LEFT] == this ? LEFT : RIGHT;
+			}
+			else
+			{
+				return -1;
+			}
+		}
+
 
 	protected:
 
 		Value_t _value;
 		Balance_t _balance;
 		std::size_t _count;
-		Node* _left;
-		Node* _right;
+		Node* _childs[2];
 		Node* _parent;
 	};
 
@@ -581,16 +676,17 @@ protected:
 				{
 					nextNode = nextNode->left();
 				}
-				n->setData(nextNode->data());
-				n->setKey(nextNode->key());
-				Balance_t oldBalance = n->right()->balance();
-				n->setRight(removeNode(n->right(), nextNode->key()));
-				if (!n->right() || (n->right()->balance() == 0 && abs(oldBalance) == 1))
+				n->swap(*nextNode);
+				std::swap(n->value(), nextNode->value());
+				result = nextNode;
+				Balance_t oldBalance = nextNode->right()->balance();
+				nextNode->setRight(removeNode(nextNode->right(), n->key()));
+				if (!nextNode->right() || (nextNode->right()->balance() == 0 && abs(oldBalance) == 1))
 				{
-					n->balance()--;
-					if (n->balance() == -2)
+					nextNode->balance()--;
+					if (nextNode->balance() == -2)
 					{
-						result = leftBalance(n);
+						result = leftBalance(nextNode);
 					}
 				}
 
