@@ -3,6 +3,8 @@ C++ template class for random access map
 This likes the std::map but you can access items random by indexe with syntax my_map.key(i) and my_map.data(i)
 This is useful to build system like caching where recent used data is highest index 
 
+
+
 # Usage
 We need just the file "RandomAccessMap.h" to use the map in your project.
 Example :
@@ -21,3 +23,19 @@ It is an AVL standarad tree, plus adding the count of childs in each nodes.
 #Testing
 file test.cpp contains some test cases.
 
+
+# RecentList
+
+RecentList is one of usage example of RandomAccessMap. Which can be used to repesent a cache system.
+
+It is a template class provides last in first out system. It is useful for caching system
+When new item is added if it doesn't exist it pushed to the beging of the list
+If it exists, it is moved to begin of the list.
+This class can used to present a cache system.
+
+Example 
+ RecentList<std::string> my_list;
+ my_list.add("A");
+ my_list.add("B");
+ my_list.add("A");
+ std::cout<< my_list[0]; // show "A"

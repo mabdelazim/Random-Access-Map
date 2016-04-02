@@ -81,9 +81,12 @@
   <ItemGroup>
     <ClInclude Include="RandomAccessMap.h" />
     <ClInclude Include="RecentList.h" />
+    <ClInclude Include="Test.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp" />
+    <ClCompile Include="test_random_access_map.cpp" />
+    <ClCompile Include="test_recentlist.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

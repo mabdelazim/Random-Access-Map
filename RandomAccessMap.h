@@ -66,6 +66,12 @@ public:
 		return find(_root, key) != NULL;
 	}
 
+	void clear()
+	{
+		freeNode(_root);
+		_root = NULL;
+	}
+
 	Key_t key(std::size_t index)
 	{
 		Node* n = get(_root, index);
@@ -80,6 +86,19 @@ public:
 	}
 
 	Data_t& data(std::size_t index)
+	{
+		Node* n = get(_root, index);
+		if (n)
+		{
+			return n->data();
+		}
+		else
+		{
+			throw std::invalid_argument("Invalided Index");
+		}
+	}
+
+	const Data_t& data(std::size_t index) const
 	{
 		Node* n = get(_root, index);
 		if (n)
