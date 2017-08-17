@@ -62,11 +62,17 @@ public:
 		return isValid(_root, temp1, temp2);
 	}
 
-	bool find(const Key_t& key)
+	bool has_key(const Key_t& key)
 	{
 		return find(_root, key) != NULL;
 	}
-
+	
+	Iterator find(const Key_t& key)
+	{
+	  Node* n = find(_root, key);
+	  return Iterator(n);
+        }
+    
 	void clear()
 	{
 		freeNode(_root);
@@ -237,6 +243,7 @@ public:
 		Node* _n;
 		friend Iterator RandomAccessMap::begin();
 		friend Iterator RandomAccessMap::insert(const Key_t& key, const Data_t& data);
+		friend Iterator RandomAccessMap::find(const Key_t& key);
 	};
 
 protected:
