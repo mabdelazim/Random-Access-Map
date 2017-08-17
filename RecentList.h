@@ -2,6 +2,7 @@
 #define __RECENT_LIST_HEADER__
 #include "RandomAccessMap.h"
 #include <unordered_map>
+#include <stdexcept>
 #include <limits>
 
 
