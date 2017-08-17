@@ -1,6 +1,7 @@
 #ifndef __RANDOM_ACCESS_HEADER__
 #define __RANDOM_ACCESS_HEADER__
 #include <algorithm>
+#include <stdexcept>
 
 template<typename Key_t, typename Data_t>
 
@@ -370,7 +371,7 @@ protected:
 
 		Node* child(int dir) const
 		{
-			return _child[dir];
+			return _childs[dir];
 		}
 
 		Node* parent() const
